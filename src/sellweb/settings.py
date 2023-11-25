@@ -42,8 +42,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'sell_api',
 
 ]
+
+AUTH_USER_MODEL = 'sell_api.Users'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -80,7 +83,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         ),  
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
@@ -95,7 +98,6 @@ SIMPLE_JWT = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'NAME': os.getenv('MYSQL_DATABASE'), # Tên database
         'USER': os.getenv('MYSQL_USER'),     # Tên người dùng
         'PASSWORD': os.getenv('MYSQL_PASSWORD'), # Mật khẩu

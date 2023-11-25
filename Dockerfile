@@ -11,9 +11,9 @@ RUN pip install -r requirements.txt
 RUN pip install channels
 RUN pip install channels-redis
 
-RUN groupadd --gid 1000 ngangroup
-RUN useradd -u 1000 ngan -G ngangroup --home /app
-RUN chown -R ngan:ngangroup /app
+RUN groupadd --gid 1000 ngan
+RUN useradd -u 1000 ngan -g ngan --home /app
+RUN chown -R ngan:ngan /app
 USER ngan
 
 
