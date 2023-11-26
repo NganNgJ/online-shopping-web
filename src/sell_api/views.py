@@ -1,12 +1,15 @@
 from django.shortcuts import render
-from rest_framework import generics,status,serializers,viewsets, filters
+from rest_framework import generics,status,serializers, viewsets, filters, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response 
-
-
+from .models import (
+    ProductCategory, Product
+)
 from .serializers import(
     RegistrationSerializer,
+    ProductCategorySerializer,
+    ProductSerializer
 )
 
 
@@ -20,4 +23,13 @@ class RegistrationAPIview(generics.GenericAPIView):
             serializer.save()
             return Response(status=status.HTTP_201_CREATED, data=serializer.data)
         return Response({'detail': serializer.errors},status=status.HTTP_400_BAD_REQUEST)
-        
+
+
+class ProductCategoryViewset(viewsets.ModelViewSet):
+    queryset = ProductCategory.objects.all()
+    serializer_class = ProductCategorySerializer
+    # permission_classes = (permissions.AllowAny)
+
+class ProductViewset(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer

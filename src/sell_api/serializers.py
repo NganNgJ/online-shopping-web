@@ -2,7 +2,9 @@
 from rest_framework import serializers
 from rest_framework.response import Response
 from .models import (
-    Users
+    Users,
+    ProductCategory,
+    Product,
 )
 
 
@@ -28,3 +30,25 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Users.objects.create_user(**validated_data)
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductCategory
+        fields = '__all__'
+
+class ProductSerializer(serializers.ModelSerializer):
+    category = ProductCategorySerializer
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    def create(self, validated_data):
+        category_data = validated_data.pop('category')
+        if isinstance(category_data, ProductCategory):
+            instance = category_data
+        else:
+            instance, created = ProductCategory.objects.get_or_create(**category_data)
+        product = Product.objects.create(**validated_data,category=instance)
+        return product
