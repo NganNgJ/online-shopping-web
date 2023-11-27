@@ -8,7 +8,6 @@ from .models import (
 )
 
 
-
 class RegistrationSerializer(serializers.ModelSerializer):
     
     email = serializers.EmailField(max_length=50, min_length=6)
@@ -45,10 +44,12 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        category_data = validated_data.pop('category')
-        if isinstance(category_data, ProductCategory):
-            instance = category_data
-        else:
-            instance, created = ProductCategory.objects.get_or_create(**category_data)
-        product = Product.objects.create(**validated_data,category=instance)
+        product = Product.objects.create(**validated_data)
         return product
+    
+    def update(self, instance, validated_data):
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+
+        return instance

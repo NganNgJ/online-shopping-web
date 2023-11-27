@@ -28,7 +28,7 @@ class RegistrationAPIview(generics.GenericAPIView):
 class ProductCategoryViewset(viewsets.ModelViewSet):
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
-    # permission_classes = (permissions.AllowAny)
+    permission_classes = [AllowAny]
 
 class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()

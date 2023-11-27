@@ -69,6 +69,7 @@ def product_image_path(instance, filename):
 class ProductCategory(AbstractEntity, models.Model):
     name = models.CharField(verbose_name='Category name',max_length=255)
     icon = models.ImageField(upload_to=category_image_path, blank=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'product_categories'
@@ -76,18 +77,18 @@ class ProductCategory(AbstractEntity, models.Model):
     def __str__(self):
         return self.name
 
-def get_default_product_category():
-    return ProductCategory.object.get_or_create(name='Others')[0]
-
 class Product(AbstractEntity, models.Model):
-    category = models.ForeignKey(ProductCategory, on_delete= models.SET(get_default_product_category), related_name='product_lists')
+    category = models.ForeignKey(ProductCategory, on_delete= models.CASCADE, related_name='product_lists')
     name = models.CharField(max_length=255)
     desc = models.TextField(blank=True)
     image = models.ImageField(upload_to=product_image_path, blank=True)
     price =  models.DecimalField(decimal_places=2, max_digits=10)
     quantity = models.IntegerField(default=1)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'products'
         ordering = ('-created_at',)
-     
+
+    def __str__(self):
+        return self.name
