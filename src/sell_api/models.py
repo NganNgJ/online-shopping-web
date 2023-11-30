@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth import get_user_model
+from django_countries.fields import CountryField
 
 
 
@@ -57,7 +58,17 @@ class Users(AbstractEntity,AbstractBaseUser, PermissionsMixin):
     
     class Meta:
         db_table = 'users'
+
+class Address(AbstractEntity, model.Models):
+    user = models.ForeignKey(User, on_delete=CASCADE, related_name='address_user')
+    country = CountryField(null=True)
+    city = models.CharField(max_length=100, blank=False, null=False)
+    district = models.CharField(max_length=100, blank=False, null=False)
+    street_address = models.CharField(max_length=255, blank=False, null=False)
+    is_default = models.BooleanField(default=False)
     
+    class Meta:
+        db_table = 'addresses'
 
 def category_image_path(instance, filename):
     return "product/category/icons/{0}/{1}".format(instance.name,filename)
