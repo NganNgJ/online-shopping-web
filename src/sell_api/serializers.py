@@ -5,6 +5,7 @@ from .models import (
     Users,
     ProductCategory,
     Product,
+    Address
 )
 
 
@@ -29,6 +30,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Users.objects.create_user(**validated_data)
+
+class UserAddressSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Address
+        fields = '__all__'
 
 class ProductCategorySerializer(serializers.ModelSerializer):
 

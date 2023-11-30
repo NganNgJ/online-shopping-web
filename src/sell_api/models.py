@@ -46,6 +46,7 @@ class UserManager(BaseUserManager):
 class Users(AbstractEntity,AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="email address", unique=True, max_length=255)
     phone = models.CharField(unique=True, max_length=30)
+    full_name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
