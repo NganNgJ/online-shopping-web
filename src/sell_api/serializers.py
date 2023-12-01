@@ -32,6 +32,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return Users.objects.create_user(**validated_data)
 
 class UserAddressSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.full_name', read_only=True)
 
     class Meta:
         model = Address
