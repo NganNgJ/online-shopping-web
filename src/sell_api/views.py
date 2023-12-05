@@ -4,12 +4,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response 
 from .models import (
-    ProductCategory, Product
+    ProductCategory, Product, Address
 )
 from .serializers import(
     RegistrationSerializer,
     ProductCategorySerializer,
-    ProductSerializer
+    ProductSerializer,
+    UserAddressSerializer
 )
 
 
@@ -33,3 +34,7 @@ class ProductCategoryViewset(viewsets.ModelViewSet):
 class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+class UserAddressViewset(viewsets.ModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = UserAddressSerializer
