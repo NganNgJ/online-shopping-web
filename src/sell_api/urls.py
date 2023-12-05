@@ -3,14 +3,16 @@ from django.urls import path, re_path, include
 from .views import (
     ProductCategoryViewset,
     ProductViewset,
-    UserAddressViewset
+    AddressViewset,
+    UserViewset
 )
 
 
 router = routers.DefaultRouter()
 router.register(r'categories', ProductCategoryViewset)
 router.register(r'product', ProductViewset)
-router.register(r'profile/address', ProductViewset)
+router.register(r'address', AddressViewset)
+router.register(r'user', UserViewset)
 
 
 urlpatterns = [

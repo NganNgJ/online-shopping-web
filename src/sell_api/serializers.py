@@ -31,12 +31,20 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Users.objects.create_user(**validated_data)
 
-class UserAddressSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.full_name', read_only=True)
+class AddressSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Address
         fields = '__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    addresses = AddressSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Users 
+        fields = ['id', 'email', 'phone', 'full_name', 'is_active', 'addresses']
+
 
 class ProductCategorySerializer(serializers.ModelSerializer):
 
@@ -61,3 +69,4 @@ class ProductSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+    

@@ -46,7 +46,7 @@ class UserManager(BaseUserManager):
 class Users(AbstractEntity,AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="email address", unique=True, max_length=255)
     phone = models.CharField(unique=True, max_length=30)
-    full_name = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=255, default='')
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
@@ -60,8 +60,8 @@ class Users(AbstractEntity,AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'users'
 
-class Address(AbstractEntity, model.Models):
-    user = models.ForeignKey(User, on_delete=CASCADE, related_name='address_user')
+class Address(AbstractEntity, models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='addresses')
     country = CountryField(null=True)
     city = models.CharField(max_length=100, blank=False, null=False)
     district = models.CharField(max_length=100, blank=False, null=False)
@@ -70,6 +70,14 @@ class Address(AbstractEntity, model.Models):
     
     class Meta:
         db_table = 'addresses'
+    
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            self.user.addresses.exclude(id=self.id).update(is_default=False)
+        elif not self.user.addresses.filter(is_default=True).exists():
+            self.is_default = True
+
+        super().save(*args, **kwargs)
 
 def category_image_path(instance, filename):
     return "product/category/icons/{0}/{1}".format(instance.name,filename)
