@@ -5,6 +5,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
+from .enum import OrderStatus
 
 
 
@@ -112,3 +113,13 @@ class Product(AbstractEntity, models.Model):
 
     def __str__(self):
         return self.name
+
+class Order(AbstractEntity, models.Model):
+    buyer = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='orders')
+    status = models.CharField(max_length=1, choices=OrderStatus.value)
+    shipping_address= models.ForeignKey(Address, on_delete=models.CASCADE, blank=False, null=False)
+
+    class Meta:
+        db_table = 'orders'
+        ordering = '-id'
+
