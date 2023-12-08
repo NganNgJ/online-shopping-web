@@ -5,7 +5,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
-from .enum import OrderStatus
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -114,22 +114,51 @@ class Product(AbstractEntity, models.Model):
     def __str__(self):
         return self.name
 
+class Payment(AbstractEntity, models.Model):
+
+    SUCEESS = 'S'
+    PENDING = 'P'
+    FAILED = 'F'
+
+    STATUS_CHOICES = [(SUCEESS,_('Success')), (PENDING, _('Pending')), (FAILED, _('Failed'))]
+
+    CREDIT_CARD = 'CC'
+    NAPAS = 'ATM'
+
+    PAYMENT_CHOICES = [(CREDIT_CARD,_('Credit card')), (NAPAS, _('ATM'))]
+    
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='payments')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    payment_method = models.CharField(choices=PAYMENT_CHOICES, max_length=10)
+    amount = models.DecimalField(max_digits=100, decimal_places=2)
+
+    class Meta:
+        db_table = 'payments'
+
 class Order(AbstractEntity, models.Model):
+
+    COMPLETED = 'C'
+    PENDING = 'P'
+    INVALID = 'I'
+
+    STATUS_CHOICES = [(COMPLETED,_('Completed')), (PENDING, _('Pending')), (INVALID, _('Invalid'))]
+
     buyer = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='orders')
-    status = models.CharField(max_length=1, choices=OrderStatus.value)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     shipping_address= models.ForeignKey(Address, on_delete=models.CASCADE, blank=False, null=False)
+    gmv = models.DecimalField(max_digits=100, decimal_places=2)
 
     class Meta:
         db_table = 'orders'
-        ordering = '-id'
+        ordering = ('-id',)
 
 class OrderItem(AbstractEntity, models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_orders')
     quantity = models.IntegerField()
-    gmv = models.DecimalField(max_digits=10, decimal_places=2)
+    order_item_price = models.DecimalField(max_digits=100, decimal_places=2)
 
     class Meta:
         db_table = 'order_items'
-        ordering = '-id'
+        ordering = ('-id',)
 
