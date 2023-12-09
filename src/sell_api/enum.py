@@ -13,5 +13,16 @@ class ChoiceEnum(Enum):
         return choices
 
 class OrderStatus(ChoiceEnum):
-    Pending = 'P'
-    Completed = 'C'
+    PENDING = 'Pending'
+    COMPLETED = 'Completed'
+    INVALID = 'Invalid'
+
+class PaymentStatus(ChoiceEnum):
+    PENDING = 'Pending'
+    SUCCESS = 'Success'
+    FAILED = 'Failed'
+
+class PaymentMethod(ChoiceEnum):
+    CC = 'Credit card'
+    MM = 'MoMo'
+    COD = 'Cash on Delivery'

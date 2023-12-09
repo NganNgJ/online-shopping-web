@@ -6,6 +6,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
 from django.utils.translation import gettext_lazy as _
+from .enum import (OrderStatus, PaymentStatus, PaymentMethod)
 
 
 
@@ -103,8 +104,8 @@ class Product(AbstractEntity, models.Model):
     name = models.CharField(max_length=255)
     desc = models.TextField(blank=True)
     image = models.ImageField(upload_to=product_image_path, blank=True)
-    price =  models.DecimalField(decimal_places=2, max_digits=10)
-    quantity = models.IntegerField(default=1)
+    price =  models.FloatField(null=False, default=0)
+    quantity = models.FloatField(null=False, default=0)
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -115,38 +116,22 @@ class Product(AbstractEntity, models.Model):
         return self.name
 
 class Payment(AbstractEntity, models.Model):
-
-    SUCEESS = 'S'
-    PENDING = 'P'
-    FAILED = 'F'
-
-    STATUS_CHOICES = [(SUCEESS,_('Success')), (PENDING, _('Pending')), (FAILED, _('Failed'))]
-
-    CREDIT_CARD = 'CC'
-    NAPAS = 'ATM'
-
-    PAYMENT_CHOICES = [(CREDIT_CARD,_('Credit card')), (NAPAS, _('ATM'))]
     
     user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='payments')
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    payment_method = models.CharField(choices=PAYMENT_CHOICES, max_length=10)
-    amount = models.DecimalField(max_digits=100, decimal_places=2)
+    status = models.CharField(choices=PaymentStatus.choices(), max_length=55)
+    payment_method = models.CharField(choices=PaymentMethod.choices(), max_length=55)
+    amount = models.FloatField(null=False)
 
     class Meta:
         db_table = 'payments'
 
 class Order(AbstractEntity, models.Model):
 
-    COMPLETED = 'C'
-    PENDING = 'P'
-    INVALID = 'I'
-
-    STATUS_CHOICES = [(COMPLETED,_('Completed')), (PENDING, _('Pending')), (INVALID, _('Invalid'))]
-
     buyer = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='orders')
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status = models.CharField(choices=OrderStatus.choices(), max_length=55)
     shipping_address= models.ForeignKey(Address, on_delete=models.CASCADE, blank=False, null=False)
-    gmv = models.DecimalField(max_digits=100, decimal_places=2)
+    total_price = models.FloatField(null=False, default=0)
+    discount_amount = models.FloatField(null=False, default=0)
 
     class Meta:
         db_table = 'orders'
@@ -155,8 +140,8 @@ class Order(AbstractEntity, models.Model):
 class OrderItem(AbstractEntity, models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_orders')
-    quantity = models.IntegerField()
-    order_item_price = models.DecimalField(max_digits=100, decimal_places=2)
+    quantity = models.FloatField(null=False, default=0)
+    order_item_price = models.FloatField(null=False, default=0)
 
     class Meta:
         db_table = 'order_items'
