@@ -115,27 +115,21 @@ class Product(AbstractEntity, models.Model):
     def __str__(self):
         return self.name
 
-class Payment(AbstractEntity, models.Model):
-    
-    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='payments')
-    status = models.CharField(choices=PaymentStatus.choices(), max_length=55)
-    payment_method = models.CharField(choices=PaymentMethod.choices(), max_length=55)
-    amount = models.FloatField(null=False)
-
-    class Meta:
-        db_table = 'payments'
-
 class Order(AbstractEntity, models.Model):
 
     buyer = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(choices=OrderStatus.choices(), max_length=55)
     shipping_address= models.ForeignKey(Address, on_delete=models.CASCADE, blank=False, null=False)
-    total_price = models.FloatField(null=False, default=0)
     discount_amount = models.FloatField(null=False, default=0)
+    is_cart = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'orders'
         ordering = ('-id',)
+    
+    @property
+    def total_price(self):
+        return sum([order_item.order_item_price for order_item in self.order_items.all()])
 
 class OrderItem(AbstractEntity, models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
@@ -146,4 +140,8 @@ class OrderItem(AbstractEntity, models.Model):
     class Meta:
         db_table = 'order_items'
         ordering = ('-id',)
+    
+    def save(self, *args, **kwargs):
+        self.order_item_price = self.product.price * self.product.quantity
+        super().save(*args, *kwargs)
 
