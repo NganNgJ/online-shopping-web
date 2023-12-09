@@ -141,7 +141,4 @@ class OrderItem(AbstractEntity, models.Model):
         db_table = 'order_items'
         ordering = ('-id',)
     
-    def save(self, *args, **kwargs):
-        self.order_item_price = self.product.price * self.product.quantity
-        super().save(*args, *kwargs)
 

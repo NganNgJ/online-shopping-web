@@ -1,11 +1,15 @@
 
 from rest_framework import serializers
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
+from .error_codes import ERROR_CODES
 from .models import (
     Users,
     ProductCategory,
     Product,
-    Address
+    Address,
+    Order,
+    OrderItem
 )
 
 
@@ -72,3 +76,52 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return instance
 
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'quantity', 'order_item_price']
+
+class OrderSerializer(serializers.ModelSerializer):
+    buyer = UserSerializer(read_only=True)
+    order_items = serializers.ListField(write_only=True, required=True)
+    product_list = OrderItemSerializer(many=True, read_only=True, source='order_items')
+
+    class Meta:
+        model = Order
+        fields = ['id', 'product_list', 'total_price', 'buyer', 'order_items', 'shipping_address', 'is_cart', 'status', 'discount_amount']
+    
+    def validate(self, validated_data):
+        products_data = validated_data.get('order_items', [])
+        for product_data in products_data:
+            product_id = product_data['product']
+            quantity = product_data['quantity']
+        
+            product = Product.objects.filter(id=product_id, is_active=True).first()
+
+            if product is None:
+                return ParseError(ERROR_CODES[400001], 400001)
+            if quantity > product.quantity:
+                return ParseError(ERROR_CODES[400002], 400002)
+        
+        return validated_data 
+
+    def create(self,validated_data):
+        buyer = self.context['request'].user 
+        order_items_data = validated_data.get('order_items', [])
+        validated_data.pop('order_items')
+        order = Order.objects.create(buyer=buyer, **validated_data)
+
+        for order_item in order_items_data:
+            product_id = order_item['product']
+            quantity = order_item['quantity']
+            product = Product.objects.get(pk=product_id)
+            order_item_price = product.price * quantity
+            OrderItem.objects.create(order=order, product=product, quantity=quantity, order_item_price=order_item_price)
+        return order 
+
+
+
+
+     

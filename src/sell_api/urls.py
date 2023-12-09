@@ -4,7 +4,8 @@ from .views import (
     ProductCategoryViewset,
     ProductViewset,
     AddressViewset,
-    UserViewset
+    UserViewset,
+    OrderViewset
 )
 
 
@@ -13,6 +14,7 @@ router.register(r'categories', ProductCategoryViewset)
 router.register(r'product', ProductViewset)
 router.register(r'address', AddressViewset)
 router.register(r'user', UserViewset)
+router.register(r'order', OrderViewset)
 
 
 urlpatterns = [
