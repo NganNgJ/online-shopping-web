@@ -31,20 +31,22 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Users.objects.create_user(**validated_data)
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Users 
+        fields = ['id', 'email', 'phone', 'full_name', 'is_active']
+
 class AddressSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    user = UserSerializer(read_only=True)
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Address.objects.create(user=user, **validated_data)
 
     class Meta:
         model = Address
         fields = '__all__'
-
-class UserSerializer(serializers.ModelSerializer):
-    addresses = AddressSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Users 
-        fields = ['id', 'email', 'phone', 'full_name', 'is_active', 'addresses']
-
 
 class ProductCategorySerializer(serializers.ModelSerializer):
 
@@ -69,4 +71,4 @@ class ProductSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-    
+
