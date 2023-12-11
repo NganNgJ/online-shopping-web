@@ -5,6 +5,8 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
+from django.utils.translation import gettext_lazy as _
+from .enum import (OrderStatus, PaymentStatus, PaymentMethod)
 
 
 
@@ -46,7 +48,7 @@ class UserManager(BaseUserManager):
 class Users(AbstractEntity,AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="email address", unique=True, max_length=255)
     phone = models.CharField(unique=True, max_length=30)
-    full_name = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=255, default='')
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
@@ -60,8 +62,8 @@ class Users(AbstractEntity,AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'users'
 
-class Address(AbstractEntity, model.Models):
-    user = models.ForeignKey(User, on_delete=CASCADE, related_name='address_user')
+class Address(AbstractEntity, models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='addresses')
     country = CountryField(null=True)
     city = models.CharField(max_length=100, blank=False, null=False)
     district = models.CharField(max_length=100, blank=False, null=False)
@@ -70,6 +72,14 @@ class Address(AbstractEntity, model.Models):
     
     class Meta:
         db_table = 'addresses'
+    
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            self.user.addresses.exclude(id=self.id).update(is_default=False)
+        elif not self.user.addresses.filter(is_default=True).exists():
+            self.is_default = True
+
+        super().save(*args, **kwargs)
 
 def category_image_path(instance, filename):
     return "product/category/icons/{0}/{1}".format(instance.name,filename)
@@ -94,8 +104,8 @@ class Product(AbstractEntity, models.Model):
     name = models.CharField(max_length=255)
     desc = models.TextField(blank=True)
     image = models.ImageField(upload_to=product_image_path, blank=True)
-    price =  models.DecimalField(decimal_places=2, max_digits=10)
-    quantity = models.IntegerField(default=1)
+    price =  models.FloatField(null=False, default=0)
+    quantity = models.FloatField(null=False, default=0)
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -104,3 +114,31 @@ class Product(AbstractEntity, models.Model):
 
     def __str__(self):
         return self.name
+
+class Order(AbstractEntity, models.Model):
+
+    buyer = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='orders')
+    status = models.CharField(choices=OrderStatus.choices(), max_length=55)
+    shipping_address= models.ForeignKey(Address, on_delete=models.CASCADE, blank=False, null=False)
+    discount_amount = models.FloatField(null=False, default=0)
+    is_cart = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'orders'
+        ordering = ('-id',)
+    
+    @property
+    def total_price(self):
+        return sum([order_item.order_item_price for order_item in self.order_items.all()])
+
+class OrderItem(AbstractEntity, models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_orders')
+    quantity = models.FloatField(null=False, default=0)
+    order_item_price = models.FloatField(null=False, default=0)
+
+    class Meta:
+        db_table = 'order_items'
+        ordering = ('-id',)
+    
+

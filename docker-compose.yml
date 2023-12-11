@@ -32,6 +32,7 @@ services:
     env_file:
       - .env
     restart: always
+    command: 'python -W ignore manage.py runserver 0.0.0.0:8000'
     depends_on:
       mysql:
         condition: service_healthy
