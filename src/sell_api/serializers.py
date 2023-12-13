@@ -3,13 +3,15 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from .error_codes import ERROR_CODES
+from .enum import (OrderStatus, PaymentStatus, PaymentMethod)
 from .models import (
     Users,
     ProductCategory,
     Product,
     Address,
     Order,
-    OrderItem
+    OrderItem,
+    Payment
 )
 
 
@@ -121,6 +123,56 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, product=product, quantity=quantity, order_item_price=order_item_price)
         return order 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    order = OrderSerializer(read_only=True)
+    order_id = serializers.IntegerField(required=True, allow_null=False, write_only=True)
+    payment_method = serializers.CharField(required=True, allow_null=False)
+    status = serializers.CharField(required=True, allow_null=False)
+    amount = serializers.FloatField(required=True, allow_null=False)
+    
+    class Meta:
+        model = Payment
+        fields = '__all__'
+
+    def validate(self, validated_data):
+        order_id = validated_data.get('order_id', None)
+        payment_method = validated_data.get('payment_method', None)
+        status = validated_data.get('status',None)
+        user = self.context['request'].user
+
+        order = Order.objects.filter(id=order_id, buyer=user).first()
+
+        if order is None:
+            raise ParseError(ERROR_CODES[400005],400005)
+        if payment_method not in [item.value for item in PaymentMethod]:
+            raise ParseError(ERROR_CODES[400004],400004)
+        if status not in [status.value for status in PaymentStatus]:
+            raise ParseError(ERROR_CODES[400007],400007)
+        
+        return validated_data
+    
+    def create(self,validated_data): 
+        user = self.context['request'].user
+        order_id = validated_data.get('order_id', None)
+        payment_method = validated_data.get('payment_method', None)
+        status = validated_data.get('status',None)
+        amount = validated_data.get('amount',None)
+
+        payment = Payment.objects.create(user=user,**validated_data)
+        if status == 'Success':
+            Order.objects.filter(id=order_id).update(status='Completed')
+        
+        return payment
+    
+    def update(self, instance, validated_data):
+        status = validated_data.get('status',None)
+
+        if instance.status == 'Success':
+            raise ParseError(ERROR_CODES[400006],400006)
+        instance.status = status 
+        instance.save()
+        return instance
 
 
 
