@@ -5,7 +5,8 @@ from .views import (
     ProductViewset,
     AddressViewset,
     UserViewset,
-    OrderViewset
+    OrderViewset,
+    PaymentViewset
 )
 
 
@@ -15,6 +16,7 @@ router.register(r'product', ProductViewset)
 router.register(r'address', AddressViewset)
 router.register(r'user', UserViewset)
 router.register(r'order', OrderViewset)
+router.register(r'payment', PaymentViewset)
 
 
 urlpatterns = [
