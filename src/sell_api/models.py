@@ -141,4 +141,13 @@ class OrderItem(AbstractEntity, models.Model):
         db_table = 'order_items'
         ordering = ('-id',)
     
+class Payment(AbstractEntity, models.Model):
 
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='payments')
+    status = models.CharField(choices=PaymentStatus.choices(), max_length=55)
+    payment_method = models.CharField(choices=PaymentMethod.choices(), max_length=55)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')
+    amount = models.FloatField(null=False)
+
+    class Meta:
+        db_table = 'payments'
