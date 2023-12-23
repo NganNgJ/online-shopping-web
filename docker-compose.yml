@@ -32,14 +32,50 @@ services:
     env_file:
       - .env
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health_check"]
+      interval: 20s
+      timeout: 20s
+      retries: 5
     command: 'python -W ignore manage.py runserver 0.0.0.0:8000'
-    depends_on:
+    depends_on: 
       mysql:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     volumes:
       - ./src:/app
     networks:
       - sell_network
+  
+  rabbitmq:
+    image: rabbitmq:3.8.2-management
+    container_name: rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    restart: always
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 5
+    networks: 
+     - sell_network
+  
+  worker:
+    image: sell_web
+    container_name: worker
+    command: bash -c "celery -A sellweb worker -l info"
+    volumes:
+       - ./src:/app
+    depends_on:
+        - mysql
+        - rabbitmq
 
 networks:
   sell_network:
+
