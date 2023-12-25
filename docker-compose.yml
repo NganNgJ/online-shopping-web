@@ -32,11 +32,6 @@ services:
     env_file:
       - .env
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-      interval: 20s
-      timeout: 20s
-      retries: 5
     command: 'python -W ignore manage.py runserver 0.0.0.0:8000'
     depends_on: 
       mysql:
