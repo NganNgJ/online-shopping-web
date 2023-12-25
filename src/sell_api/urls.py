@@ -7,7 +7,6 @@ from .views import (
     UserViewset,
     OrderViewset,
     PaymentViewset,
-    health_check
 )
 
 
@@ -22,5 +21,4 @@ router.register(r'payment', PaymentViewset)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('health_check', health_check)
 ]
