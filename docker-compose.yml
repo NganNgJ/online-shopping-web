@@ -33,7 +33,7 @@ services:
       - .env
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health_check"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 20s
       timeout: 20s
       retries: 5
