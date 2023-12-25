@@ -53,3 +53,8 @@ class OrderViewset(viewsets.ModelViewSet):
 class PaymentViewset(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    return Response(status=status.HTTP_200_OK)

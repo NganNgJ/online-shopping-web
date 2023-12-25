@@ -67,14 +67,24 @@ services:
      - sell_network
   
   worker:
-    image: sell_web
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: worker
-    command: bash -c "celery -A sellweb worker -l info"
+    command: celery -A sellweb worker -l INFO
     volumes:
        - ./src:/app
+    links:
+      - mysql
+      - rabbitmq
+      - api 
     depends_on:
-        - mysql
-        - rabbitmq
+      - mysql
+      - rabbitmq
+      - api
+    networks: 
+     - sell_network
 
 networks:
   sell_network:
