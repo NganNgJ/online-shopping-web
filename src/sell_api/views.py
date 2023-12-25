@@ -53,3 +53,4 @@ class OrderViewset(viewsets.ModelViewSet):
 class PaymentViewset(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+

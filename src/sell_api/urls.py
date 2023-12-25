@@ -6,7 +6,7 @@ from .views import (
     AddressViewset,
     UserViewset,
     OrderViewset,
-    PaymentViewset
+    PaymentViewset,
 )
 
 
