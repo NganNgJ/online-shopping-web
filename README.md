@@ -13,4 +13,5 @@ A Shopping online website API built using Django Rest Framwork
 * Docker
 * Nginx
 * OAuth
+* Message queue
 
