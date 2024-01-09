@@ -16,6 +16,7 @@ from .serializers import(
     PaymentSerializer
 )
 
+from sell_api import tasks
 
 class RegistrationAPIview(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -38,6 +39,10 @@ class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+    def list(self, request, *args, **kwargs):
+        tasks.add.delay(1, 2)
+        return Response([])
+
 class AddressViewset(viewsets.ModelViewSet):
     queryset = Address.objects.all() 
     serializer_class = AddressSerializer
@@ -54,3 +59,8 @@ class PaymentViewset(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
+# @api_view(['GET'])
+# def get_unread_notification(request):
+#     # get unread noti
+#     return 
+#     # [] [3]
