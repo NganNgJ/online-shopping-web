@@ -13,6 +13,7 @@ from .models import (
     OrderItem,
     Payment
 )
+from . import tasks
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -113,14 +114,11 @@ class OrderSerializer(serializers.ModelSerializer):
         buyer = self.context['request'].user 
         order_items_data = validated_data.get('order_items', [])
         validated_data.pop('order_items')
-        order = Order.objects.create(buyer=buyer, **validated_data)
+        order = Order.objects.create(buyer=buyer, **validated_data)     
 
-        for order_item in order_items_data:
-            product_id = order_item['product']
-            quantity = order_item['quantity']
-            product = Product.objects.get(pk=product_id)
-            order_item_price = product.price * quantity
-            OrderItem.objects.create(order=order, product=product, quantity=quantity, order_item_price=order_item_price)
+        #create Order Item from task
+        tasks.create_order_item.delay(order_items_data, order.id)
+
         return order 
 
 class PaymentSerializer(serializers.ModelSerializer):

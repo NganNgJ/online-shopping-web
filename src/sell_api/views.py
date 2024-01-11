@@ -39,10 +39,6 @@ class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-    def list(self, request, *args, **kwargs):
-        tasks.add.delay(1, 2)
-        return Response([])
-
 class AddressViewset(viewsets.ModelViewSet):
     queryset = Address.objects.all() 
     serializer_class = AddressSerializer
