@@ -1,4 +1,4 @@
-
+from __future__ import absolute_import, unicode_literals
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
@@ -14,6 +14,7 @@ from .models import (
     Payment
 )
 from . import tasks
+from celery.result import AsyncResult
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -117,8 +118,7 @@ class OrderSerializer(serializers.ModelSerializer):
         order = Order.objects.create(buyer=buyer, **validated_data)     
 
         #create Order Item from task
-        tasks.create_order_item.delay(order_items_data, order.id)
-
+        task = tasks.create_order_item.delay(order_items_data, order.id)
         return order 
 
 class PaymentSerializer(serializers.ModelSerializer):

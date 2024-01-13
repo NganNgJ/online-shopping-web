@@ -151,3 +151,4 @@ class Payment(AbstractEntity, models.Model):
 
     class Meta:
         db_table = 'payments'
+
