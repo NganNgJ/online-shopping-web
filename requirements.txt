@@ -14,3 +14,4 @@ django-countries==7.5.1
 django-phonenumber-field==7.1.0
 celery==5.2.3
 importlib-metadata==4.13.0
+firebase-admin == 6.3.0
