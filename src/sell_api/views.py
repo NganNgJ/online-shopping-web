@@ -37,8 +37,13 @@ class ProductCategoryViewset(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 class ProductViewset(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('-id')
     serializer_class = ProductSerializer
+
+    def list(self, request):
+        product_list = Product.objects.filter(is_active=True).order_by('-id')
+        serializer = ProductSerializer(product_list, many=True)
+        return Response(serializer.data)
 
 class AddressViewset(viewsets.ModelViewSet):
     queryset = Address.objects.all() 
