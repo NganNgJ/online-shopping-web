@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from rest_framework import generics,status,serializers, viewsets, filters, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -55,8 +56,3 @@ class PaymentViewset(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
-# @api_view(['GET'])
-# def get_unread_notification(request):
-#     # get unread noti
-#     return 
-#     # [] [3]

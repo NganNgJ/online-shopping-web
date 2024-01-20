@@ -14,6 +14,10 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+# Twilio called ID info
+TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
+CALL_ID_PHONE = '+12406963913'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent
