@@ -18,6 +18,7 @@ from .serializers import(
 )
 
 from sell_api import tasks
+from .error_codes import ERROR_CODES
 
 class RegistrationAPIview(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -44,6 +45,21 @@ class ProductViewset(viewsets.ModelViewSet):
         product_list = Product.objects.filter(is_active=True).order_by('-id')
         serializer = ProductSerializer(product_list, many=True)
         return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        product_id = self.kwargs['pk']
+        product = Product.objects.filter(id=product_id).first()
+
+        if product is None:
+            return ParseError(ERROR_CODES[400001],400001)
+
+        if product.is_active is True:
+            return ParseError(ERROR_CODES[400008],400008)
+        
+        product.is_active = False
+        product.save()
+        return Response({'status': ERROR_CODES[400009]})
+
 
 class AddressViewset(viewsets.ModelViewSet):
     queryset = Address.objects.all() 
