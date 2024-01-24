@@ -19,6 +19,7 @@ from .serializers import(
 
 from sell_api import tasks
 from .error_codes import ERROR_CODES
+from sell_api.pagination import CustomPageNumberPagination
 
 class RegistrationAPIview(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -40,6 +41,7 @@ class ProductCategoryViewset(viewsets.ModelViewSet):
 class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all().order_by('-id')
     serializer_class = ProductSerializer
+    pagination_class = CustomPageNumberPagination
 
     def list(self, request):
         product_list = Product.objects.filter(is_active=True).order_by('-id')
@@ -72,6 +74,7 @@ class UserViewset(viewsets.ModelViewSet):
 class OrderViewset(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    pagination_class = CustomPageNumberPagination
 
 class PaymentViewset(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
