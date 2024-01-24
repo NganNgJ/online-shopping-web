@@ -39,9 +39,11 @@ class ProductCategoryViewset(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 class ProductViewset(viewsets.ModelViewSet):
-    queryset = Product.objects.all().order_by('-id')
     serializer_class = ProductSerializer
     pagination_class = CustomPageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields =['category', 'name']
+    queryset = Product.objects.all().order_by('-id')
 
     def list(self, request):
         product_list = Product.objects.filter(is_active=True).order_by('-id')
@@ -72,9 +74,9 @@ class UserViewset(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 class OrderViewset(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     pagination_class = CustomPageNumberPagination
+    queryset = Order.objects.all()
 
 class PaymentViewset(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
