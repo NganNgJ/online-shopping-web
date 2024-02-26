@@ -5,7 +5,9 @@ A Shopping online website API built using Django Rest Framwork
 ## Basic features
 * Registration using either phone number or email
 * Basic online shopping feature 
-* Payment integration (Credit card, MoMo, COD)
+* Payment integration
+* Documentation using DRF Spectacular
+
 
 ## Technologies 
 * Django Rest Framework
@@ -14,4 +16,5 @@ A Shopping online website API built using Django Rest Framwork
 * Nginx
 * Message queue
 * Twilio SMS
+* Swagger
 
