@@ -70,7 +70,7 @@ class AddressViewset(viewsets.ModelViewSet):
     serializer_class = AddressSerializer
 
 class UserViewset(viewsets.ModelViewSet):
-    queryset = Users.objects.all()
+    queryset = Users.objects.filter(is_active=True)
     serializer_class = UserSerializer
 
 class OrderViewset(viewsets.ModelViewSet):
