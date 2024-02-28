@@ -13,7 +13,6 @@ A Shopping online website API built using Django Rest Framwork
 * Django Rest Framework
 * MySQL
 * Docker
-* Nginx
 * Message queue
 * Twilio SMS
 * Swagger

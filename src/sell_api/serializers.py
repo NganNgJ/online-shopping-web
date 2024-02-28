@@ -117,7 +117,7 @@ class OrderSerializer(serializers.ModelSerializer):
         validated_data.pop('order_items')
         order = Order.objects.create(buyer=buyer, **validated_data)     
 
-        #create Order Item from task
+        #create Order Item from task queue
         task = tasks.create_order_item.delay(order_items_data, order.id)
         return order 
 
